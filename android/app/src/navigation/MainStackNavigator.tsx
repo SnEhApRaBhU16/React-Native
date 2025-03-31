@@ -3,11 +3,11 @@ import { Colors } from "../constants/styles";
 import SignupScreen from "../components/Auth/SignupScreen";
 import LoginScreen from "../components/Auth/LoginScreen";
 import { NavigationContainer } from "@react-navigation/native";
-import WelcomeScreen from "../components/WelcomeScreen";
 import { useContext } from "react";
 import { AuthContext } from "../store/slices/auth-context";
-import IconButton from "../ui/IconButton";
 import OtpScreen from "../screens/OtpScreen";
+import TabNavigator from "./TabNavigator";
+import IconButton from "../ui/IconButton";
 
 export type AuthStackParamList = {
     Signup: undefined; // No parameters needed
@@ -16,7 +16,7 @@ export type AuthStackParamList = {
 };
 
 export type AuthenticatedStackParamList = {
-    Welcome: undefined; // No parameters needed
+    MainTabs: undefined; // No parameters needed
 };
 
 const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>();
@@ -47,13 +47,17 @@ export function AuthenticatedStack() {
                 contentStyle: { backgroundColor: Colors.primary100 },
             }}
         >
-            <AuthenticatedStackNavigator.Screen name="Welcome" component={WelcomeScreen} options={{
-                headerRight: ({tintColor}) => 
-                    <IconButton icon="log-out-outline" 
-                        color={tintColor||"white"} 
-                        size={24} 
-                        onPress={authCtx.logout}/>
-            }}/>
+            <AuthenticatedStackNavigator.Screen
+                name="MainTabs"
+                component={TabNavigator} // Use TabNavigator here
+                options={{
+                    headerRight: ({tintColor}) => 
+                        <IconButton icon="logout" 
+                            color={tintColor||"white"} 
+                            size={24} 
+                            onPress={authCtx.logout}/>
+                }}
+            />
         </AuthenticatedStackNavigator.Navigator>
     );
 }
