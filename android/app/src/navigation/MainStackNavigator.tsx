@@ -1,0 +1,69 @@
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Colors } from "../constants/styles";
+import SignupScreen from "../components/Auth/SignupScreen";
+import LoginScreen from "../components/Auth/LoginScreen";
+import { NavigationContainer } from "@react-navigation/native";
+import WelcomeScreen from "../components/WelcomeScreen";
+import { useContext } from "react";
+import { AuthContext } from "../store/slices/auth-context";
+import IconButton from "../ui/IconButton";
+import OtpScreen from "../screens/OtpScreen";
+
+export type AuthStackParamList = {
+    Signup: undefined; // No parameters needed
+    Login: undefined; // No parameters needed
+    OTP: { email: string; password: string }; // OTP needs email & password
+};
+
+export type AuthenticatedStackParamList = {
+    Welcome: undefined; // No parameters needed
+};
+
+const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>();
+const AuthenticatedStackNavigator = createNativeStackNavigator<AuthenticatedStackParamList>();
+export function AuthStack() {
+    return (
+        <AuthStackNavigator.Navigator
+            screenOptions={{
+                headerStyle: { backgroundColor: Colors.primary500 },
+                headerTintColor: "white",
+                contentStyle: { backgroundColor: Colors.primary100 },
+            }}
+        >
+            <AuthStackNavigator.Screen name="Signup" component={SignupScreen} />
+            <AuthStackNavigator.Screen name="Login" component={LoginScreen} />
+            <AuthStackNavigator.Screen name="OTP" component={OtpScreen} /> 
+        </AuthStackNavigator.Navigator>
+    );
+}
+
+export function AuthenticatedStack() {
+    const authCtx = useContext(AuthContext);
+    return (
+        <AuthenticatedStackNavigator.Navigator
+            screenOptions={{
+                headerStyle: { backgroundColor: Colors.primary500 },
+                headerTintColor: "white",
+                contentStyle: { backgroundColor: Colors.primary100 },
+            }}
+        >
+            <AuthenticatedStackNavigator.Screen name="Welcome" component={WelcomeScreen} options={{
+                headerRight: ({tintColor}) => 
+                    <IconButton icon="log-out-outline" 
+                        color={tintColor||"white"} 
+                        size={24} 
+                        onPress={authCtx.logout}/>
+            }}/>
+        </AuthenticatedStackNavigator.Navigator>
+    );
+}
+
+export function Navigation() {
+    const authCtx = useContext(AuthContext);
+    return (
+        <NavigationContainer>
+            {!authCtx.isAuthenticated &&<AuthStack />}
+            {authCtx.isAuthenticated && <AuthenticatedStack/>}
+        </NavigationContainer>
+    );
+}

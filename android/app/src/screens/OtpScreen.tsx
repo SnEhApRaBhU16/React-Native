@@ -1,0 +1,175 @@
+import React, { useState, useRef, useContext, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from "react-native";
+import { AuthContext } from "../store/slices/auth-context";
+import { login } from "../utils/auth";
+import LoadingOverlay from "../ui/LoadingOverlay";
+import { RouteProp, useRoute } from "@react-navigation/native";
+import { AuthStackParamList } from "../navigation/MainStackNavigator";
+
+const RESEND_OTP_TIME = 30; // 30 seconds cooldown
+
+type OtpScreenRouteProp = RouteProp<AuthStackParamList, "OTP">;
+
+function OtpScreen() {
+    const route = useRoute<OtpScreenRouteProp>();
+    const { email, password } = route.params;
+    const [otp, setOtp] = useState(["", "", "", ""]);
+    const [isAuthenticating, setIsAuthenticating] = useState(false);
+    const [timer, setTimer] = useState(RESEND_OTP_TIME);
+    const [isResendDisabled, setIsResendDisabled] = useState(true);
+    const authCtx = useContext(AuthContext);
+    const inputRefs = [
+        useRef<TextInput>(null),
+        useRef<TextInput>(null),
+        useRef<TextInput>(null),
+        useRef<TextInput>(null),
+    ];
+    const correctOtp = "1234"; // Dummy OTP for now
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (isResendDisabled) {
+            interval = setInterval(() => {
+                setTimer((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(interval);
+                        setIsResendDisabled(false);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [isResendDisabled]);
+
+    const handleChange = (text: string, index: number) => {
+        if (text.length > 1) return;
+        const newOtp = [...otp];
+        newOtp[index] = text;
+        setOtp(newOtp);
+
+        if (text && index < 3) {
+            inputRefs[index + 1]?.current?.focus();
+        }
+    };
+
+    const handleVerify = async () => {
+        if (!email || !password) {
+            Alert.alert("Error", "Missing authentication details.");
+            return;
+        }
+        if (otp.join("") === correctOtp) {
+            Alert.alert("Success", "OTP Verified!");
+            setIsAuthenticating(true);
+            try {
+                const token = await login(email, password);
+                authCtx.authenticate(token);
+            } catch (error) {
+                Alert.alert(
+                    "Authentication failed!",
+                    "Could not log you in. Please check your credentials or try again later!"
+                );
+                console.error(error);
+            } finally {
+                setIsAuthenticating(false);
+            }
+        } else {
+            Alert.alert("Error", "Invalid OTP. Try again.");
+        }
+    };
+
+    const handleResendOtp = () => {
+        if (isResendDisabled) return;
+        Alert.alert("OTP Resent", "A new OTP has been sent.");
+        setIsResendDisabled(true);
+        setTimer(RESEND_OTP_TIME);
+    };
+
+    if (isAuthenticating) {
+        return <LoadingOverlay message="Logging in ..." />;
+    }
+
+    return (
+        <View style={styles.container}>
+            <Image source={require("../assets/images/6325251.jpg")} style={styles.image}/>
+            
+            <Text style={styles.title}>Enter OTP</Text>
+            <View style={styles.otpContainer}>
+                {otp.map((value, index) => (
+                    <TextInput
+                        key={index}
+                        ref={inputRefs[index]}
+                        style={styles.otpBox}
+                        keyboardType="numeric"
+                        maxLength={1}
+                        value={value}
+                        onChangeText={(text) => handleChange(text, index)}
+                    />
+                ))}
+            </View>
+            <TouchableOpacity style={styles.button} onPress={handleVerify}>
+                <Text style={styles.buttonText}>Verify OTP</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleResendOtp} disabled={isResendDisabled}>
+                <Text style={[styles.resendText, isResendDisabled && styles.resendDisabled]}>
+                    {isResendDisabled ? `Resend OTP in ${timer}s` : "Resend OTP"}
+                </Text>
+            </TouchableOpacity>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f5f5f5",
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 20,
+    },
+    otpContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "60%",
+    },
+    otpBox: {
+        width: 50,
+        height: 50,
+        borderWidth: 1,
+        borderColor: "#333",
+        textAlign: "center",
+        fontSize: 24,
+        borderRadius: 5,
+        backgroundColor: "#fff",
+    },
+    image: {
+        width: 250,
+        height: 200,
+        resizeMode: "contain",
+    },
+    button: {
+        marginTop: 20,
+        backgroundColor: "#6200ea",
+        padding: 10,
+        borderRadius: 5,
+    },
+    buttonText: {
+        color: "white",
+        fontSize: 18,
+    },
+    resendText: {
+        marginTop: 15,
+        color: "#007bff",
+        fontSize: 16,
+    },
+    resendDisabled: {
+        color: "gray",
+    },
+});
+
+export default OtpScreen;
