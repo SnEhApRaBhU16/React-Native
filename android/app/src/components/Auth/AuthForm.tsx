@@ -13,6 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ThemedText from "../../ui/ThemedText";
 import ReactNativeBiometrics from "react-native-biometrics";
 import { getNewIdToken } from "../getNewIdToken";
+import Config from "react-native-config";
 
 const rnBiometrics = new ReactNativeBiometrics();
 
@@ -37,8 +38,9 @@ const AuthForm = ({ isLogin, onSubmit, credentialsInvalid }:{isLogin:boolean,
     const [showPassword, setShowPassword] = useState(false);
     const [refreshToken,setRefreshToken] = useState("");
     // Configure Google Sign-In
+    console.log("config",Config);
     GoogleSignin.configure({
-        webClientId: "200900970119-139o5oojr3p268oevdhtb07qt88pi5mr.apps.googleusercontent.com",
+        webClientId: Config.API_WEB_CLIENT_ID,
         offlineAccess: true, // Required for Firebase Auth
     });
     useEffect(() => {

@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env.development
 .env.production
 .env.test
+.env.staging
+.env.preproduction
+
 
 # Cache & Build
 .cache/
