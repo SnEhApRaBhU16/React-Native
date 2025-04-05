@@ -1,16 +1,18 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { Colors } from "../constants/styles";
 import { ReactNode } from "react";
+import ThemedText from "./ThemedText";
 
-function Button({ children, onPress }:{children:ReactNode,onPress:()=>void}) {
+function Button({ children, onPress,disabled }:{children:ReactNode,onPress:()=>void,disabled?:boolean}) {
     return (
         <Pressable
             style={({ pressed }) => [styles.button, pressed && styles.pressed]}
             onPress={onPress}
+            disabled={disabled||false}
         >
             <View>
-                <Text style={styles.buttonText}>{children}</Text>
+                <ThemedText style={styles.buttonText}>{children}</ThemedText>
             </View>
         </Pressable>
     );

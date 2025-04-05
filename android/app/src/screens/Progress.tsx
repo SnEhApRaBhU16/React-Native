@@ -1,5 +1,6 @@
 import {  useEffect, useRef, useState } from "react";
-import { Animated, Text, View } from "react-native";
+import { Animated, View } from "react-native";
+import ThemedText from "../ui/ThemedText";
 
 interface StepProps {
     steps: number;
@@ -12,7 +13,7 @@ interface StepProps {
 const Progress = (({steps,height}:StepProps) => {
     const [width,setWidth] = useState(0);
     const [index,setIndex] = useState(0);
-    const animatedValue = useRef(new Animated.Value(-1000)).current; // ✅ Use useRef to persist animatedValue
+    const animatedValue = useRef(new Animated.Value(-1000)).current; //  Use useRef to persist animatedValue
 
     useEffect (()=>{
         const interval = setInterval(()=>{
@@ -24,7 +25,7 @@ const Progress = (({steps,height}:StepProps) => {
     useEffect(() => {
         if (width > 0 ) {
             Animated.timing(animatedValue, {
-                toValue: index>=10?0:(-width + (width * index) / steps), // ✅ Compute translation correctly
+                toValue: index>=10?0:(-width + (width * index) / steps), // Compute translation correctly
                 duration: 300,
                 useNativeDriver: true,
             }).start();
@@ -32,9 +33,9 @@ const Progress = (({steps,height}:StepProps) => {
     }, [index,width]);
     return(
         <>
-            <Text style={{fontFamily:"Menlo",fontSize:12,fontWeight:"900",marginBottom:8}}>
+            <ThemedText style={{fontFamily:"Menlo",fontSize:12,fontWeight:"900",marginBottom:8}}>
                 Loading...
-            </Text>
+            </ThemedText>
             <View 
                 onLayout={e=>setWidth(e.nativeEvent.layout.width)}
                 style={{height,

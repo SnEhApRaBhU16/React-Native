@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { Colors } from "../constants/styles";
 import { ReactNode } from "react";
+import ThemedText from "./ThemedText";
 
 function FlatButton({ children, onPress }:{children:ReactNode,onPress:()=>void}) {
     return (
@@ -10,7 +11,7 @@ function FlatButton({ children, onPress }:{children:ReactNode,onPress:()=>void})
             onPress={onPress}
         >
             <View>
-                <Text style={styles.buttonText}>{children}</Text>
+                <ThemedText style={styles.buttonText}>{children}</ThemedText>
             </View>
         </Pressable>
     );

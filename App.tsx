@@ -8,11 +8,15 @@ import axios from "axios";
 import AuthContextProvider, { AuthContext } from "./android/app/src/store/slices/auth-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import "./android/app/src/config/firebaseConfig";
+import { ThemeProvider, useTheme } from "./android/app/src/store/theme-context";
 
 function Root(){
+    const {theme} = useTheme();
     const [isTryingLogin,setIsTryingLogin] = useState(true);
     const [isShowSplash,setIsShowSplash] = useState(true);
     const authCtx = useContext(AuthContext);
+    console.log("theme", theme);
+
     useEffect(()=>{
         setTimeout(()=>{
             setIsShowSplash(false);
@@ -25,19 +29,21 @@ function Root(){
             setIsTryingLogin(false);
         }
         fetchToken();
-
+   
     },[]);
 
+    
     if(isTryingLogin || isShowSplash){
         return <View style={styles.container}>
             <SplashScreen/>
             <Progress   steps={10} height={10}  />
         </View>;
     }
-    return  <Navigation/>;
+    return  (     <Navigation/>);
 }
 function App(): React.JSX.Element {
-    
+ 
+
     axios.interceptors.request.use(request => {
         console.log("📡 API Request:", request);
         return request;
@@ -53,7 +59,10 @@ function App(): React.JSX.Element {
         <>
             
             <AuthContextProvider>
-                <Root/>
+                <ThemeProvider>
+                    <Root/>
+                </ThemeProvider>
+
             </AuthContextProvider>
         
         </>

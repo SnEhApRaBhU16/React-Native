@@ -1,10 +1,11 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import ThemedText from "../ui/ThemedText";
 
 export default function ChatScreen() {
     return (
         <View style={styles.container}>
-            <Text>Chat Screen</Text>
+            <ThemedText>Chat Screen</ThemedText>
         </View>
     );
 }

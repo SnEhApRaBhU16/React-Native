@@ -2,12 +2,14 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Colors } from "../constants/styles";
 import SignupScreen from "../components/Auth/SignupScreen";
 import LoginScreen from "../components/Auth/LoginScreen";
-import { NavigationContainer } from "@react-navigation/native";
+import { DarkTheme, DefaultTheme, NavigationContainer, Theme } from "@react-navigation/native";
 import { useContext } from "react";
 import { AuthContext } from "../store/slices/auth-context";
 import OtpScreen from "../screens/OtpScreen";
 import TabNavigator from "./TabNavigator";
 import IconButton from "../ui/IconButton";
+import { useTheme } from "../store/theme-context";
+
 
 export type AuthStackParamList = {
     Signup: undefined; // No parameters needed
@@ -21,6 +23,25 @@ export type AuthenticatedStackParamList = {
 
 const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>();
 const AuthenticatedStackNavigator = createNativeStackNavigator<AuthenticatedStackParamList>();
+
+const lightTheme: Theme = {
+    ...DefaultTheme,
+    colors: {
+        ...DefaultTheme.colors,
+        background: "#ffffff", // Light mode background
+        text: "#000000", // Light mode text
+    },
+};
+
+const darkTheme: Theme = {
+    ...DarkTheme,
+    colors: {
+        ...DarkTheme.colors,
+        background: "#000000", // Dark mode background
+        text: "#ffffff", // Dark mode text
+    },
+};
+
 export function AuthStack() {
     return (
         <AuthStackNavigator.Navigator
@@ -62,10 +83,11 @@ export function AuthenticatedStack() {
     );
 }
 
-export function Navigation() {
+export function Navigation() { 
     const authCtx = useContext(AuthContext);
+    const { theme } = useTheme(); 
     return (
-        <NavigationContainer>
+        <NavigationContainer  theme={theme === "dark" ? darkTheme : lightTheme}>
             {!authCtx.isAuthenticated &&<AuthStack />}
             {authCtx.isAuthenticated && <AuthenticatedStack/>}
         </NavigationContainer>

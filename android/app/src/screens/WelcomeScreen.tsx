@@ -1,12 +1,15 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Button, Image, StyleSheet, View } from "react-native";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../store/slices/auth-context";
+import { useTheme } from "../store/theme-context";
+import ThemedText from "../ui/ThemedText";
 
 
 function WelcomeScreen() {
     const [fetchedMessage,setFetchedMessage] = useState("");
     const authCtx = useContext(AuthContext);
+    const { toggleTheme } = useTheme();
     const token = authCtx.token;
     
     useEffect(()=>{
@@ -18,13 +21,15 @@ function WelcomeScreen() {
     },[token]);
     return (
         <View style={styles.rootContainer}>
+            <Button title="Toggle Theme" onPress={toggleTheme} />
+            
             {authCtx.photoUrl!==""&&
             <Image source={{ uri: authCtx.photoUrl }} style={styles.image} />}
-            <Text style={styles.title}>Welcome!</Text>
-            <Text>You authenticated successfully!</Text>
-            <Text>{fetchedMessage}</Text>
-            {authCtx.displayName!==""&&<Text>Name: {authCtx.displayName}</Text> }
-            <Text>Email: {authCtx.email}</Text>
+            <ThemedText style={styles.title}>Welcome!</ThemedText>
+            <ThemedText>You authenticated successfully!</ThemedText>
+            <ThemedText>{fetchedMessage}</ThemedText>
+            {authCtx.displayName!==""&&<ThemedText>Name: {authCtx.displayName}</ThemedText> }
+            <ThemedText>Email: {authCtx.email}</ThemedText>
         </View>
     );
 }

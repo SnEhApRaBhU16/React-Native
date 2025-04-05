@@ -2,14 +2,14 @@ import {
     Button,
     SafeAreaView,
     StyleSheet,
-    Text,
-    TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
 import React, { Fragment, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setId } from "../store/slices/authSlice";
+import ThemedText from "../ui/ThemedText";
+import ThemedTextInput from "../ui/ThemedTextInput";
 const HomeScreen: React.FC = () => {
     const [text, setText] = useState("");
     const dispatch = useDispatch();
@@ -19,15 +19,15 @@ const HomeScreen: React.FC = () => {
                 pointerEvents={"auto"}
             >
                 <View style={styles.container}>
-                    <Text >HomeScreen</Text>
+                    <ThemedText >HomeScreen</ThemedText>
                     <TouchableOpacity
                         onPress={() => {
                         }}
                     >
-                        <Text>go to next screen</Text>
+                        <ThemedText>go to next screen</ThemedText>
                     </TouchableOpacity>
                     <View style={{ borderWidth: 1, padding: 20 }}>
-                        <TextInput
+                        <ThemedTextInput
                             value={text}
                             placeholder="type here"
                             onChangeText={setText}

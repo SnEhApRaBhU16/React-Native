@@ -121,22 +121,22 @@ productFlavors {
   staging {
     dimension "appType"
     applicationIdSuffix ".staging"
-    resValue "string", "app_name", "Config Demo-Staging"
+    resValue "string", "app_name", "Milestone-Staging"
   }
   production {
     dimension "appType"
     applicationIdSuffix ".production"
-    resValue "string", "app_name", "Config Demo"
+    resValue "string", "app_name", "Milestone"
   }
   development {
     dimension "appType"
     applicationIdSuffix ".development"
-    resValue "string", "app_name", "Config Demo-Development"
+    resValue "string", "app_name", "Milestone-Development"
   }
   preproduction {
     dimension "appType"
     applicationIdSuffix ".preproduction"
-    resValue "string", "app_name", "Config Demo-Preproduction"
+    resValue "string", "app_name", "Milestone-Preproduction"
   }
 }
 }

@@ -1,10 +1,11 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from "react-native";
+import { View, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from "react-native";
 import { AuthContext } from "../store/slices/auth-context";
 import { login } from "../utils/auth";
 import LoadingOverlay from "../ui/LoadingOverlay";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { AuthStackParamList } from "../navigation/MainStackNavigator";
+import ThemedText from "../ui/ThemedText";
 
 const RESEND_OTP_TIME = 30; // 30 seconds cooldown
 
@@ -65,6 +66,7 @@ function OtpScreen() {
             try {
                 const token = await login(email, password);
                 authCtx.authenticate(token);
+                
             } catch (error) {
                 Alert.alert(
                     "Authentication failed!",
@@ -94,7 +96,7 @@ function OtpScreen() {
         <View style={styles.container}>
             <Image source={require("../assets/images/6325251.jpg")} style={styles.image}/>
             
-            <Text style={styles.title}>Enter OTP</Text>
+            <ThemedText style={styles.title}>Enter OTP</ThemedText>
             <View style={styles.otpContainer}>
                 {otp.map((value, index) => (
                     <TextInput
@@ -109,12 +111,12 @@ function OtpScreen() {
                 ))}
             </View>
             <TouchableOpacity style={styles.button} onPress={handleVerify}>
-                <Text style={styles.buttonText}>Verify OTP</Text>
+                <ThemedText style={styles.buttonText}>Verify OTP</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleResendOtp} disabled={isResendDisabled}>
-                <Text style={[styles.resendText, isResendDisabled && styles.resendDisabled]}>
+                <ThemedText style={[styles.resendText, isResendDisabled && styles.resendDisabled]}>
                     {isResendDisabled ? `Resend OTP in ${timer}s` : "Resend OTP"}
-                </Text>
+                </ThemedText>
             </TouchableOpacity>
         </View>
     );
@@ -144,6 +146,7 @@ const styles = StyleSheet.create({
         borderColor: "#333",
         textAlign: "center",
         fontSize: 24,
+        color:"black",
         borderRadius: 5,
         backgroundColor: "#fff",
     },
