@@ -14,7 +14,7 @@ import ThemedText from "../../ui/ThemedText";
 import ReactNativeBiometrics from "react-native-biometrics";
 import { getNewIdToken } from "../getNewIdToken";
 import Config from "react-native-config";
-
+import { getFontFamily } from "../../utils/fontFamily";
 const rnBiometrics = new ReactNativeBiometrics();
 
 
@@ -38,7 +38,6 @@ const AuthForm = ({ isLogin, onSubmit, credentialsInvalid }:{isLogin:boolean,
     const [showPassword, setShowPassword] = useState(false);
     const [refreshToken,setRefreshToken] = useState("");
     // Configure Google Sign-In
-    console.log("config",Config);
     GoogleSignin.configure({
         webClientId: Config.API_WEB_CLIENT_ID,
         offlineAccess: true, // Required for Firebase Auth
@@ -54,14 +53,20 @@ const AuthForm = ({ isLogin, onSubmit, credentialsInvalid }:{isLogin:boolean,
         getRefreshToken();
 
     }, []);
+
     const checkBiometricSupport = async () => {
         const { available } = await rnBiometrics.isSensorAvailable();
         setIsBiometricAvailable(available);
     };
     const handleBiometricLogin = async () => {
+        const currentUser = auth.currentUser;
+        console.log("ccuuu",currentUser);
         setIsAuthenticating(true);
-        const { success } = await rnBiometrics.simplePrompt({
+        const payload = "LoginRequest-" + Date.now(); // Example challenge (timestamp or random from backend)
+        const { success } = await rnBiometrics.createSignature({
             promptMessage: "Authenticate with Biometrics",
+            payload,
+
         });
         if (success) {
             const refreshToken = await AsyncStorage.getItem("refreshToken");
@@ -154,10 +159,11 @@ const AuthForm = ({ isLogin, onSubmit, credentialsInvalid }:{isLogin:boolean,
             lastName,
             phoneNumber,
         });
-        const { publicKey } = await rnBiometrics.createKeys();
-        console.log("Generated Public Key:", publicKey);
-
-        await AsyncStorage.setItem("biometricKey", publicKey);
+        const existingKey = await AsyncStorage.getItem("biometricKey");
+        if (!existingKey) {
+            const { publicKey } = await rnBiometrics.createKeys();
+            await AsyncStorage.setItem("biometricKey", publicKey);
+        }
         setIsAuthenticating(false);
     }
     function switchAuthModeHandler() {
@@ -176,9 +182,7 @@ const AuthForm = ({ isLogin, onSubmit, credentialsInvalid }:{isLogin:boolean,
         <View>
             <View>
                 {/* Show only biometric login if biometrics are available and it's login mode */}
-                {isLogin && refreshToken ? (
-                    <Button disabled={!isBiometricAvailable} onPress={handleBiometricLogin}>Login with Biometrics</Button>
-                ) : (
+                { (
                     <>
                         {!isLogin && (
                             <View>
@@ -244,7 +248,7 @@ const AuthForm = ({ isLogin, onSubmit, credentialsInvalid }:{isLogin:boolean,
 
                         {!isLogin && (
                             <TouchableOpacity style={styles.googleButton} onPress={googleSignIn}>
-                                <ThemedText style={styles.googleText}>Sign in with Google</ThemedText>
+                                <ThemedText style={{fontFamily: getFontFamily(true, "bold"),color:"black"}}>Sign in with Google</ThemedText>
                             </TouchableOpacity>
                         )}
 
@@ -255,6 +259,7 @@ const AuthForm = ({ isLogin, onSubmit, credentialsInvalid }:{isLogin:boolean,
                         </View>
                     </>
                 )}
+
             </View>
         </View>
 

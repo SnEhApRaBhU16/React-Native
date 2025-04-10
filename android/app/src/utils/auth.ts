@@ -1,26 +1,57 @@
+
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, db } from "../config/firebaseConfig";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-
-const API_KEY = "AIzaSyAN9G143Zg0FcekZjXmNYaLEVTaDfRmFxA";
 
 
-async function authenticate(mode:"signUp"|"signInWithPassword",email:string,password:string){
-    const url = `https://identitytoolkit.googleapis.com/v1/accounts:${mode}?key=${API_KEY}`;
-    const response = await axios.post(url, {
-        email: email,
-        password: password,
-        returnSecureToken: true
-    });
-    const token  = response.data.idToken;
-    const refreshToken = await response.data?.refreshToken;
-    await AsyncStorage.setItem("refreshToken", refreshToken || "");
-    console.log("refresss",refreshToken);
+
+
+export const createUser = async (email: string, password: string): Promise<string> => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+  
+    if (user) {
+        await saveUserToFirestore(user.uid, user.email ?? "");
+    }
+    const token = await user.getIdToken();
+    await AsyncStorage.setItem("refreshToken", user.refreshToken);
+    await AsyncStorage.setItem("token", token);
     return token;
-}
-export async function createUser (email:string,password:string) {
-    return authenticate("signUp", email, password);
-}
+};
 
-export async function login (email:string, password:string) {
-    return authenticate("signInWithPassword", email, password);
-}   
+export const login = async (email: string, password: string): Promise<string> => {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+  
+    console.log("✅ Logged in user:", user.email, user.uid);
+    const token = await user.getIdToken();
+    await AsyncStorage.setItem("refreshToken", user.refreshToken);
+    await AsyncStorage.setItem("token", token);
+
+    return token;
+};
+
+
+
+export const saveUserToFirestore = async (uid: string, email: string) => {
+    try {
+        const userRef = doc(db, "users", uid);
+        const userDoc = await getDoc(userRef);
+  
+        if (!userDoc.exists()) {
+            await setDoc(userRef, {
+                uid,
+                email,
+                createdAt: new Date(),
+            });
+            console.log("✅ User saved to Firestore");
+        } else {
+            console.log("👤 User already exists in Firestore");
+        }
+    } catch (err) {
+        console.error("🔥 Error saving user:", err);
+        throw err;
+    }
+};
+

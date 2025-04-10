@@ -2,8 +2,8 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import AntDesign  from "react-native-vector-icons/AntDesign";
 import WelcomeScreen from "../screens/WelcomeScreen";
-import ChatScreen from "../screens/ChatScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import ChatStackNavigator from "./ChatStackNavigator";
 
 const Tab = createBottomTabNavigator();
 
@@ -29,7 +29,7 @@ export default function TabNavigator() {
                 headerShown: false,
             })}
         >
-            <Tab.Screen name="Chat" component={ChatScreen} />
+            <Tab.Screen name="Chat" component={ChatStackNavigator} />
             <Tab.Screen name="Profile" component={ProfileScreen} />
             <Tab.Screen name="Home" component={WelcomeScreen} />
         </Tab.Navigator>

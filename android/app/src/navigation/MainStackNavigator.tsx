@@ -2,14 +2,14 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Colors } from "../constants/styles";
 import SignupScreen from "../components/Auth/SignupScreen";
 import LoginScreen from "../components/Auth/LoginScreen";
-import { DarkTheme, DefaultTheme, NavigationContainer, Theme } from "@react-navigation/native";
+import { createNavigationContainerRef, DarkTheme, DefaultTheme, NavigationContainer, Theme } from "@react-navigation/native";
 import { useContext } from "react";
 import { AuthContext } from "../store/slices/auth-context";
 import OtpScreen from "../screens/OtpScreen";
 import TabNavigator from "./TabNavigator";
 import IconButton from "../ui/IconButton";
 import { useTheme } from "../store/theme-context";
-
+export const navigationRef = createNavigationContainerRef();
 
 export type AuthStackParamList = {
     Signup: undefined; // No parameters needed
@@ -84,10 +84,30 @@ export function AuthenticatedStack() {
 }
 
 export function Navigation() { 
+    const linking = {
+        prefixes: ["myapp://", "https://myapp.com"], // Adjust to your actual scheme/domain
+        config: {
+            screens: {
+            // For unauthenticated users
+                Signup: "signup",
+                Login: "login",
+                OTP: "otp",
+      
+                // For authenticated users
+                MainTabs: {
+                    screens: {
+                        Chat: "chat",
+                        Profile: "profile",
+                        Home: "home",
+                    },
+                },
+            },
+        },
+    };
     const authCtx = useContext(AuthContext);
     const { theme } = useTheme(); 
     return (
-        <NavigationContainer  theme={theme === "dark" ? darkTheme : lightTheme}>
+        <NavigationContainer ref={navigationRef} linking={linking} theme={theme === "dark" ? darkTheme : lightTheme}>
             {!authCtx.isAuthenticated &&<AuthStack />}
             {authCtx.isAuthenticated && <AuthenticatedStack/>}
         </NavigationContainer>

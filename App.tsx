@@ -1,21 +1,25 @@
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { Fragment, useContext, useEffect, useState } from "react";
 import SplashScreen from "./android/app/src/screens/SplashScreenView";
-import {  StyleSheet, View } from "react-native";
+import {  Linking, StyleSheet, View } from "react-native";
 import Progress from "./android/app/src/screens/Progress";
 import { Navigation } from "./android/app/src/navigation/MainStackNavigator";
 import axios from "axios";
 import AuthContextProvider, { AuthContext } from "./android/app/src/store/slices/auth-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import "./android/app/src/config/firebaseConfig";
-import { ThemeProvider, useTheme } from "./android/app/src/store/theme-context";
+import { ThemeProvider } from "./android/app/src/store/theme-context";
+import messaging, { FirebaseMessagingTypes } from "@react-native-firebase/messaging";
+import { handleNotificationNavigation, setupPushNotificationsPermissions } from "./android/app/src/utils/pushNotification";
+import { createNavigationContainerRef } from "@react-navigation/native";
+import notifee, { AndroidImportance } from "@notifee/react-native";
 
 function Root(){
-    const {theme} = useTheme();
     const [isTryingLogin,setIsTryingLogin] = useState(true);
     const [isShowSplash,setIsShowSplash] = useState(true);
     const authCtx = useContext(AuthContext);
-    console.log("theme", theme);
+    const [initialNotification, setInitialNotification] = useState<FirebaseMessagingTypes.RemoteMessage|null>(null);
+    const navigationRef = createNavigationContainerRef();
 
     useEffect(()=>{
         setTimeout(()=>{
@@ -23,14 +27,106 @@ function Root(){
         },3800);
         async function fetchToken() {
             const storedToken =  await AsyncStorage.getItem("token");
+            console.log("sss",storedToken);
             if(storedToken){
                 authCtx.authenticate(storedToken);
             }
             setIsTryingLogin(false);
+            await messaging().requestPermission();
+            const token = await messaging().getToken();
+            console.log("FCM Token:", token);
         }
         fetchToken();
+
    
     },[]);
+
+    useEffect(()=>{
+        setupPushNotificationsPermissions();
+        messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+            console.log("Message handled in the background:", remoteMessage);
+            // You can process background messages here if needed
+        });
+      
+        // Background notification handler
+        const unsubscribeOnNotificationOpenedApp =
+            messaging().onNotificationOpenedApp((remoteMessage) => {
+                console.log("App opened from background:", remoteMessage);
+                handleNotificationNavigation(remoteMessage);
+            });
+      
+        // Killed state handler (app was completely closed)
+        messaging()
+            .getInitialNotification()
+            .then((remoteMessage:FirebaseMessagingTypes.RemoteMessage|null) => {
+                if (remoteMessage) {
+                    console.log("App opened from killed state:", remoteMessage);
+                    setInitialNotification(remoteMessage);
+                    handleNotificationNavigation(remoteMessage);
+                }
+            });
+      
+        async function createNotificationChannel() {
+            await notifee.createChannel({
+                id: "default",
+                name: "Default Channel",
+                importance: AndroidImportance.HIGH,
+            });
+        }
+        createNotificationChannel();
+      
+        const showNotification = async (remoteMessage:FirebaseMessagingTypes.RemoteMessage) => {
+            await notifee.requestPermission();
+      
+            // Display a notification
+            await notifee.displayNotification({
+                title: remoteMessage.notification?.title || "New Message",
+                body: remoteMessage.notification?.body || "You have a new notification",
+                android: {
+                    channelId: "default",
+                    importance: AndroidImportance.HIGH,
+                    pressAction: {
+                        id: "default",
+                    },
+                },
+            });
+        };
+      
+        // Foreground notification handler
+        const unsubscribeOnForeground = messaging().onMessage(
+            async (remoteMessage) => {
+                console.log("Foreground message received:", remoteMessage);
+                await showNotification(remoteMessage);
+                handleNotificationNavigation(remoteMessage);
+      
+            }
+        );
+      
+        const handleDeepLink = async (event:{url:string}) => {
+            const url = event.url;
+            console.log("Deep link received:", url);
+        };
+      
+        // Listen for app launch via deep link
+        Linking.getInitialURL().then((url) => {
+            if (url) handleDeepLink({ url });
+        });
+      
+        // Listen for deep links when the app is running
+        const subscription = Linking.addEventListener("url", handleDeepLink);
+        return () => {
+            subscription.remove();
+            unsubscribeOnNotificationOpenedApp();
+            unsubscribeOnForeground();
+        }; 
+    },[]);
+
+    useEffect(() => {
+        if (initialNotification && navigationRef.current?.isReady()) {
+            handleNotificationNavigation(initialNotification);
+            setInitialNotification(null); // Clear after handling
+        }
+    }, [initialNotification, navigationRef.current?.isReady()]);
 
     
     if(isTryingLogin || isShowSplash){
@@ -39,7 +135,9 @@ function Root(){
             <Progress   steps={10} height={10}  />
         </View>;
     }
-    return  (     <Navigation/>);
+    return  (<Fragment>
+        <Navigation/>
+    </Fragment>);
 }
 function App(): React.JSX.Element {
  
