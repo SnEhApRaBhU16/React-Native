@@ -24,7 +24,6 @@ export const login = async (email: string, password: string): Promise<string> =>
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
   
-    console.log("✅ Logged in user:", user.email, user.uid);
     const token = await user.getIdToken();
     await AsyncStorage.setItem("refreshToken", user.refreshToken);
     await AsyncStorage.setItem("token", token);

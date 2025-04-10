@@ -60,7 +60,6 @@ const AuthForm = ({ isLogin, onSubmit, credentialsInvalid }:{isLogin:boolean,
     };
     const handleBiometricLogin = async () => {
         const currentUser = auth.currentUser;
-        console.log("ccuuu",currentUser);
         setIsAuthenticating(true);
         const payload = "LoginRequest-" + Date.now(); // Example challenge (timestamp or random from backend)
         const { success } = await rnBiometrics.createSignature({
@@ -184,6 +183,7 @@ const AuthForm = ({ isLogin, onSubmit, credentialsInvalid }:{isLogin:boolean,
                 {/* Show only biometric login if biometrics are available and it's login mode */}
                 { (
                     <>
+                        <Text style={styles.Text}>welcome</Text>
                         {!isLogin && (
                             <View>
                                 <Input

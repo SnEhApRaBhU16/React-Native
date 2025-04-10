@@ -1,8 +1,9 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { initializeAuth ,getReactNativePersistence} from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Config from "react-native-config";
 import {  initializeFirestore } from "firebase/firestore";
+import analytics from "@react-native-firebase/analytics";
+import crashlytics from "@react-native-firebase/crashlytics";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAN9G143Zg0FcekZjXmNYaLEVTaDfRmFxA",
@@ -23,4 +24,6 @@ const db = initializeFirestore(app, {
     experimentalForceLongPolling: true,
 
 });
+analytics().logAppOpen();
+crashlytics().log("App started.");
 export { app, auth,db};

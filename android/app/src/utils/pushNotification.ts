@@ -10,8 +10,6 @@ export const getFCMToken = async () => {
         await messaging().registerDeviceForRemoteMessages();
 
         // Get the token
-        const token = await messaging().getToken();
-        console.log("FCM Token:", token);
 
         // Here you would typically send this token to your backend
         // sendTokenToBackend(token);
@@ -29,10 +27,7 @@ export const setupPushNotificationsPermissions = async () => {
           authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
             if (enabled) {
-                console.log("Notification permissions granted.");
                 // await getFCMToken();
-            } else {
-                console.log("Notification permissions denied.");
             }
         } catch (err) {
             console.warn("iOS permission error:", err);
@@ -41,14 +36,10 @@ export const setupPushNotificationsPermissions = async () => {
         try {
         // For Android 13+ (API level 33+)
             if (Platform.Version >= 33) {
-                const granted = await PermissionsAndroid.request(
+                await PermissionsAndroid.request(
                     PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
                 );
-                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    console.log("Notification permissions granted.");
-                } else {
-                    console.log("Notification permissions denied.");
-                }
+            
             }
             // Get token regardless of permission (Android allows some notifications without permission)
             await getFCMToken();
@@ -76,10 +67,6 @@ export const handleNotificationNavigation = (remoteMessage:FirebaseMessagingType
                 screen: "Home",
             } );
         }
-    } else {
-        // Just open the app normally - no specific navigation
-        console.log("No specific navigation data in notification");
-    }
+    } 
 
-    console.log("Navigation data:", remoteMessage.data);
 };

@@ -64,7 +64,6 @@ function OtpScreen() {
             Alert.alert("Success", "OTP Verified!");
             setIsAuthenticating(true);
             try {
-                console.log("email","password",email,password)
                 const token = await login(email, password);
                 authCtx.authenticate(token);
                 

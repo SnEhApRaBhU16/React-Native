@@ -21,7 +21,6 @@ export default function UsersScreen() {
             return;
         }
     
-        console.log("📡 Setting up Firestore listener...");
     
         const q = query(
             collection(db, "users"),
