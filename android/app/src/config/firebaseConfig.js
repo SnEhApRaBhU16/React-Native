@@ -2,15 +2,15 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 import { initializeAuth ,getReactNativePersistence} from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Config from "react-native-config";
-import { getFirestore } from "firebase/firestore";
+import {  initializeFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: Config.API_KEY,
-    authDomain: Config.API_AUTH_DOMAIN,
-    projectId: Config.API_AUTH_PROJECT_ID,
-    storageBucket: Config.API_AUTH_STORAGE_BUCKET,
-    messagingSenderId: Config.API_AUTH_MESSAGE_SENDER_ID,
-    appId: Config.API_AUTH_APP_ID,
+    apiKey: "AIzaSyAN9G143Zg0FcekZjXmNYaLEVTaDfRmFxA",
+    authDomain: "authentication-43730.firebaseapp.com",
+    projectId: "authentication-43730",
+    storageBucket: "authentication-43730.appspot.com",
+    messagingSenderId: "200900970119",
+    appId: "1:200900970119:android:a3d3cf9081102178729a22",
 };
 
 // Initialize Firebase
@@ -19,6 +19,8 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(AsyncStorage),
 });
+const db = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
 
-const db = getFirestore(app);
+});
 export { app, auth,db};

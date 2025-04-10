@@ -17,24 +17,33 @@ export default function UsersScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<ChatStackParamList>>();
     const currentUser = auth.currentUser;
     useEffect(() => {
-         
-        if(!currentUser){
-            return; 
+        if (!currentUser) {
+            return;
         }
+    
+        console.log("📡 Setting up Firestore listener...");
+    
         const q = query(
             collection(db, "users"),
             where("uid", "!=", currentUser.uid),
-            orderBy("uid") // Firestore needs this with '!=' queries
+            orderBy("uid") // Required with '!='
         );
     
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const usersList: User[] = snapshot.docs.map((doc) => doc.data() as User);
-            setUsers(usersList);
-        });
-
+        const unsubscribe = onSnapshot(
+            q,
+            (snapshot) => {    
+                const usersList: User[] = snapshot.docs.map((doc) => doc.data() as User);
+                setUsers(usersList);
+            },
+            (error) => {
+                console.error(" Error in Firestore snapshot listener:", error);
+            }
+        );
+    
         return unsubscribe;
-    }, []);
-
+    }, [currentUser]);
+    
+    console.log("uuu",users);
     const startChat = (selectedUser: User) => {
         if (!currentUser) return;
 

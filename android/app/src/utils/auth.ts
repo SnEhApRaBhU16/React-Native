@@ -45,12 +45,9 @@ export const saveUserToFirestore = async (uid: string, email: string) => {
                 email,
                 createdAt: new Date(),
             });
-            console.log("✅ User saved to Firestore");
-        } else {
-            console.log("👤 User already exists in Firestore");
-        }
+        } 
     } catch (err) {
-        console.error("🔥 Error saving user:", err);
+        console.error("Error saving user:", err);
         throw err;
     }
 };
