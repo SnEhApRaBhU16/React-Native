@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
-import { View, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from "react-native";
+import { View, TextInput, TouchableOpacity, StyleSheet, Alert, Image, Text } from "react-native";
 import { AuthContext } from "../store/slices/auth-context";
 import { login } from "../utils/auth";
 import LoadingOverlay from "../ui/LoadingOverlay";
@@ -96,7 +96,7 @@ function OtpScreen() {
         <View style={styles.container}>
             <Image source={require("../assets/images/6325251.jpg")} style={styles.image}/>
             
-            <ThemedText style={styles.title}>Enter OTP</ThemedText>
+            <Text style={styles.title}>Enter OTP</Text>
             <View style={styles.otpContainer}>
                 {otp.map((value, index) => (
                     <TextInput
@@ -132,6 +132,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: "bold",
+        color:"black",
         marginBottom: 20,
     },
     otpContainer: {

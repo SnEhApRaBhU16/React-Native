@@ -1,8 +1,8 @@
-import { View, StyleSheet, KeyboardTypeOptions } from "react-native";
+import { View, StyleSheet, KeyboardTypeOptions, Text } from "react-native";
 
 import { Colors } from "../../constants/styles";
-import ThemedText from "../../ui/ThemedText";
 import ThemedTextInput from "../../ui/ThemedTextInput";
+import { getFontFamily } from "../../utils/fontFamily";
 
 function Input({
     label,
@@ -21,9 +21,9 @@ function Input({
 }) {
     return (
         <View style={styles.inputContainer}>
-            <ThemedText style={[styles.label, isInvalid && styles.labelInvalid]}>
+            <Text style={[styles.label, isInvalid && styles.labelInvalid,{fontFamily: getFontFamily(true, "bold"),color:"black"}]}>
                 {label}
-            </ThemedText>
+            </Text>
             <ThemedTextInput
                 style={[styles.input, isInvalid && styles.inputInvalid]}
                 autoCapitalize={"none"}
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
         width: "100%",
         marginBottom: 10,
         padding: 10,
+        color:"black",
         borderWidth: 1,
         borderColor: "#cccccc",
     },

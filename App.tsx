@@ -13,6 +13,9 @@ import messaging, { FirebaseMessagingTypes } from "@react-native-firebase/messag
 import { handleNotificationNavigation, setupPushNotificationsPermissions } from "./android/app/src/utils/pushNotification";
 import { createNavigationContainerRef } from "@react-navigation/native";
 import notifee, { AndroidImportance } from "@notifee/react-native";
+import crashlytics from "@react-native-firebase/crashlytics";
+import { I18nextProvider } from "react-i18next";
+import i18n from "./android/app/src/utils/i18n";
 
 function Root(){
     const [isTryingLogin,setIsTryingLogin] = useState(true);
@@ -22,19 +25,18 @@ function Root(){
     const navigationRef = createNavigationContainerRef();
 
     useEffect(()=>{
+        crashlytics().log("App Started");
         setTimeout(()=>{
             setIsShowSplash(false);
         },3800);
         async function fetchToken() {
             const storedToken =  await AsyncStorage.getItem("token");
-            console.log("sss",storedToken);
             if(storedToken){
                 authCtx.authenticate(storedToken);
             }
             setIsTryingLogin(false);
             await messaging().requestPermission();
-            const token = await messaging().getToken();
-            console.log("FCM Token:", token);
+    
         }
         fetchToken();
 
@@ -43,15 +45,11 @@ function Root(){
 
     useEffect(()=>{
         setupPushNotificationsPermissions();
-        messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-            console.log("Message handled in the background:", remoteMessage);
-            // You can process background messages here if needed
-        });
+
       
         // Background notification handler
         const unsubscribeOnNotificationOpenedApp =
             messaging().onNotificationOpenedApp((remoteMessage) => {
-                console.log("App opened from background:", remoteMessage);
                 handleNotificationNavigation(remoteMessage);
             });
       
@@ -60,11 +58,18 @@ function Root(){
             .getInitialNotification()
             .then((remoteMessage:FirebaseMessagingTypes.RemoteMessage|null) => {
                 if (remoteMessage) {
-                    console.log("App opened from killed state:", remoteMessage);
                     setInitialNotification(remoteMessage);
                     handleNotificationNavigation(remoteMessage);
                 }
             });
+        // Foreground notification handler
+        const unsubscribeOnForeground = messaging().onMessage(
+            async (remoteMessage) => {
+                await showNotification(remoteMessage);
+                handleNotificationNavigation(remoteMessage);
+      
+            }
+        );
       
         async function createNotificationChannel() {
             await notifee.createChannel({
@@ -92,15 +97,7 @@ function Root(){
             });
         };
       
-        // Foreground notification handler
-        const unsubscribeOnForeground = messaging().onMessage(
-            async (remoteMessage) => {
-                console.log("Foreground message received:", remoteMessage);
-                await showNotification(remoteMessage);
-                handleNotificationNavigation(remoteMessage);
-      
-            }
-        );
+        
       
         const handleDeepLink = async (event:{url:string}) => {
             const url = event.url;
@@ -143,26 +140,28 @@ function App(): React.JSX.Element {
  
 
     axios.interceptors.request.use(request => {
-        console.log("📡 API Request:", request);
+        console.log("API Request:", request);
         return request;
     });
       
     axios.interceptors.response.use(response => {
-        console.log("✅ API Response:", response.data,response.status);
+        console.log("API Response:", response.data,response.status);
         return response;
     });
     
    
     return (
         <>
-            
-            <AuthContextProvider>
-                <ThemeProvider>
-                    <Root/>
-                </ThemeProvider>
+            <I18nextProvider i18n={i18n}>
 
-            </AuthContextProvider>
-        
+                <AuthContextProvider>
+                    <ThemeProvider>
+                        <Root/>
+                    </ThemeProvider>
+
+                </AuthContextProvider>
+            </I18nextProvider>
+
         </>
     );
 }

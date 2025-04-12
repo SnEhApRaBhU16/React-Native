@@ -6,9 +6,10 @@ import { createNavigationContainerRef, DarkTheme, DefaultTheme, NavigationContai
 import { useContext } from "react";
 import { AuthContext } from "../store/slices/auth-context";
 import OtpScreen from "../screens/OtpScreen";
-import TabNavigator from "./TabNavigator";
-import IconButton from "../ui/IconButton";
+// import TabNavigator from "./TabNavigator";
+// import IconButton from "../ui/IconButton";
 import { useTheme } from "../store/theme-context";
+import DrawerNavigator from "./DrawerNavigator";
 export const navigationRef = createNavigationContainerRef();
 
 export type AuthStackParamList = {
@@ -59,26 +60,9 @@ export function AuthStack() {
 }
 
 export function AuthenticatedStack() {
-    const authCtx = useContext(AuthContext);
     return (
-        <AuthenticatedStackNavigator.Navigator
-            screenOptions={{
-                headerStyle: { backgroundColor: Colors.primary500 },
-                headerTintColor: "white",
-                contentStyle: { backgroundColor: Colors.primary100 },
-            }}
-        >
-            <AuthenticatedStackNavigator.Screen
-                name="MainTabs"
-                component={TabNavigator} // Use TabNavigator here
-                options={{
-                    headerRight: ({tintColor}) => 
-                        <IconButton icon="logout" 
-                            color={tintColor||"white"} 
-                            size={24} 
-                            onPress={authCtx.logout}/>
-                }}
-            />
+        <AuthenticatedStackNavigator.Navigator screenOptions={{ headerShown: false }}>
+            <AuthenticatedStackNavigator.Screen name="MainTabs" component={DrawerNavigator} />
         </AuthenticatedStackNavigator.Navigator>
     );
 }

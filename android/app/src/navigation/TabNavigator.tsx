@@ -4,8 +4,7 @@ import AntDesign  from "react-native-vector-icons/AntDesign";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ChatStackNavigator from "./ChatStackNavigator";
-import { StyleSheet, View } from "react-native";
-import LanguageSwitcher from "../components/LanguageSwitcher";
+
 
 const Tab = createBottomTabNavigator();
 
@@ -37,18 +36,8 @@ export default function TabNavigator() {
                 <Tab.Screen name="Home" component={WelcomeScreen} />
             </Tab.Navigator>
             {/* Floating Language Switcher */}
-            <View style={styles.floating}>
-                <LanguageSwitcher />
-            </View>
+           
         </>
     );
 }
 
-const styles = StyleSheet.create({
-    floating: {
-        position: "absolute",
-        top: 40,
-        right: 20,
-        zIndex: 10,
-    },
-});

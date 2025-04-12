@@ -1,4 +1,17 @@
 {
-    "welcome": "Welcome",
-    "login": "Login"
+    "Welcome!": "Welcome!",
+    "login": "Login",
+    "Users":"Users",
+    "Your Profile":"Your Profile",
+    "Name":"Name",
+    "Phone Number:":"Phone Number:",
+    "Pick & Upload New Image":"Pick & Upload New Image",
+    "You authenticated successfully!":"You authenticated successfully!",
+    "Settings":"Settings",
+    "Theme":"Theme",
+    "TRIGGER CRASH":"TRIGGER CRASH",
+    "LOGOUT":"LOGOUT",
+    "Chat":"Chat",
+    "Type a message":"Type a message",
+    "SEND":"SEND"
   }

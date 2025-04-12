@@ -1,5 +1,18 @@
 {
-    "welcome": "स्वागत है",
+    "Welcome!": "स्वागत है!",
     "login": "लॉग इन करें",
-    "Users": "लॉग इन करें"
+    "Users": "उपयोगकर्ता",
+    "Your Profile":"आपकी जानकारी",
+    "Name": "नाम",
+  "Phone Number:": "फ़ोन नंबर:",
+  "Pick & Upload New Image": "नई छवि चुनें और अपलोड करें",
+  "You authenticated successfully!": "आपकी पहचान सफलतापूर्वक सत्यापित हुई!",
+  "Settings": "सेटिंग्स",
+  "Theme": "थीम",
+  "TRIGGER CRASH": "क्रैश ट्रिगर करें",
+  "LOGOUT": "लॉग आउट",
+    "Chat": "चैट",
+    "Type a message": "संदेश लिखें",
+    "SEND": "भेजें"
+
   }

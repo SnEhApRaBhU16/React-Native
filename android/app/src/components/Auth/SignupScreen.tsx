@@ -8,10 +8,25 @@ import { AuthContext } from "../../store/slices/auth-context";
 function SignupScreen() {
     const [isAuthenticating,setIsAuthenticating] = useState(false);
     const authCtx = useContext(AuthContext);
-    async function signUpHandler({email,password}:{email:string,password:string}) {
+    async function signUpHandler({email, 
+        password,
+        phoneNumber,
+        firstName,
+        lastName}:
+            {email:string,
+            password:string,
+            phoneNumber?:string,
+            firstName?:string,
+            lastName?:string}) {
+
         setIsAuthenticating(true);
         try{
-            const token = await createUser(email,password);
+            const token = await createUser(email,
+                password,
+                firstName,
+                lastName,
+                phoneNumber,
+            );
             authCtx.authenticate(token);
         }catch(error){
             Alert.alert(

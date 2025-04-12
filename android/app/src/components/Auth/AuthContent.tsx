@@ -6,8 +6,9 @@ function AuthContent({ isLogin, onAuthenticate }:{isLogin:boolean,
     onAuthenticate?:(cred:{
         email:string,
         password:string,
-        firstName:string,
-        lastName:string})=>void}) {
+        phoneNumber?:string,
+        firstName?:string,
+        lastName?:string})=>void}) {
     const [credentialsInvalid, setCredentialsInvalid] = useState({
         email: false,
         password: false,
@@ -17,10 +18,11 @@ function AuthContent({ isLogin, onAuthenticate }:{isLogin:boolean,
 
     function submitHandler(credentials:{email:string,
     password:string,
-    firstName:string,
-    lastName:string}) {
+    firstName?:string,
+    phoneNumber?:string,
+    lastName?:string}) {
         let { email, password } = credentials;
-        const {firstName,lastName} = credentials;
+        const {firstName,lastName,phoneNumber} = credentials;
 
         email = email.trim();
         password = password.trim();
@@ -36,9 +38,10 @@ function AuthContent({ isLogin, onAuthenticate }:{isLogin:boolean,
                 email: !emailIsValid,
                 password: !passwordIsValid,
             });
+
             return;
         }
-        onAuthenticate?.({ email, password,firstName,lastName });
+        onAuthenticate?.({ email, password,firstName,lastName,phoneNumber });
     }
 
     return (
