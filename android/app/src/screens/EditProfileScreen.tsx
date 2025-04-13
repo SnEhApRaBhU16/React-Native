@@ -30,22 +30,22 @@ export default function EditProfileScreen() {
     }, []);
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Edit Profile</Text>
+            <Text style={styles.title}>{t("Edit Profile")}</Text>
             <View style={styles.infoBox}>
-                <Text style={styles.label}>Name:</Text>
+                <Text style={styles.label}>{t("Name")}:</Text>
                 <TextInput
                     style={styles.input}
                     value={name}
                     onChangeText={setName}
-                    placeholder="Enter your name"
+                    placeholder={t("Enter your name")}
                 />
 
-                <Text style={styles.label}>Email:</Text>
+                <Text style={styles.label}>{t("Email")}:</Text>
                 <TextInput
                     style={styles.input}
                     value={email}
                     onChangeText={setEmail}
-                    placeholder="Enter your email"
+                    placeholder={t("Enter your email")}
                     keyboardType="email-address"
                     autoCapitalize="none"
                 />

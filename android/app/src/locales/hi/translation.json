@@ -15,6 +15,10 @@
     "Type a message": "संदेश लिखें",
     "SEND": "भेजें",
     "Profile":"प्रोफ़ाइल",
-    "Home":"मुखपृष्ठ"
+    "Home":"मुखपृष्ठ",
+    "Edit Profile":"प्रोफ़ाइल संपादित करें",
+    "Email":"ईमेल",
+    "Enter your name": "अपना नाम दर्ज करें",
+   "Enter your email" : "अपना ईमेल दर्ज करें"
 
   }

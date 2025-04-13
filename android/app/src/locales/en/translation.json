@@ -15,5 +15,9 @@
     "Type a message":"Type a message",
     "SEND":"SEND",
     "Profile":"Profile",
-    "Home":"Home"
+    "Home":"Home",
+    "Edit Profile":"Edit Profile",
+    "Email":"Email",
+     "Enter your name": "Enter your name",
+   "Enter your email" : "Enter your email"
   }
