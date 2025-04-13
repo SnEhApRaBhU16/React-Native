@@ -23,7 +23,6 @@ import {
 } from "firebase/firestore";
 import { useTheme } from "../store/theme-context";
 import { useTranslation } from "react-i18next";
-
 interface ChatMessage {
   id: string;
   text: string;
@@ -43,6 +42,7 @@ interface RouteParams {
 export default function ChatScreen() {
     const route = useRoute<RouteProp<Record<string, RouteParams>, string>>();
     const { selectedUser, chatId } = route.params;
+    console.log("sess",selectedUser,"cccc",chatId);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
     const [expandedMessages, setExpandedMessages] = useState<{ [key: string]: boolean }>({});
@@ -119,7 +119,7 @@ export default function ChatScreen() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
-            style={{ flex: 1 }}
+            style={{ flex: 1 }} 
             keyboardVerticalOffset={80} // Adjust if needed for header
         >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -142,6 +142,9 @@ export default function ChatScreen() {
                             placeholder={t("Type a message")}
                             onSubmitEditing={sendMessage}
                             returnKeyType="send"
+                          
+                            keyboardType="visible-password" // 🔑 Key trick for Android
+
                         />
                         <View style={styles.button}>
                             <Button title={t("SEND")} onPress={sendMessage} />
@@ -174,8 +177,9 @@ const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: "row",
         alignItems:"center",
-        padding: 5,
+        padding: 15,
         borderTopWidth: 1,
+        marginBottom:20,
         borderColor: "#ccc",
     },
     input: {

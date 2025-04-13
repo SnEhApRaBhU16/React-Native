@@ -13,5 +13,7 @@
     "LOGOUT":"LOGOUT",
     "Chat":"Chat",
     "Type a message":"Type a message",
-    "SEND":"SEND"
+    "SEND":"SEND",
+    "Profile":"Profile",
+    "Home":"Home"
   }

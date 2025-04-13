@@ -2,15 +2,14 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Colors } from "../constants/styles";
 import SignupScreen from "../components/Auth/SignupScreen";
 import LoginScreen from "../components/Auth/LoginScreen";
-import { createNavigationContainerRef, DarkTheme, DefaultTheme, NavigationContainer, Theme } from "@react-navigation/native";
+import { DarkTheme, DefaultTheme, NavigationContainer, Theme } from "@react-navigation/native";
 import { useContext } from "react";
 import { AuthContext } from "../store/slices/auth-context";
 import OtpScreen from "../screens/OtpScreen";
-// import TabNavigator from "./TabNavigator";
-// import IconButton from "../ui/IconButton";
+import { NavigatorScreenParams } from "@react-navigation/native";
 import { useTheme } from "../store/theme-context";
 import DrawerNavigator from "./DrawerNavigator";
-export const navigationRef = createNavigationContainerRef();
+import { linking, navigationRef } from "../../../../App";
 
 export type AuthStackParamList = {
     Signup: undefined; // No parameters needed
@@ -22,6 +21,21 @@ export type AuthenticatedStackParamList = {
     MainTabs: undefined; // No parameters needed
 };
 
+
+// Define the MainTabsParamList which includes the screens and their params.
+export type MainTabsParamList = {
+  Chat: undefined; // No params for Chat screen
+  Profile: { screen: "ProfileMain" }; // Params for Profile screen (nested ProfileMain)
+  Home: undefined; // No params for Home screen
+};
+
+// Root navigation params (if necessary)
+export type RootStackParamList = {
+  Signup: undefined;
+  Login: undefined;
+  OTP: undefined;
+  MainTabs: NavigatorScreenParams<MainTabsParamList>; // MainTabs is a nested navigator
+};
 const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>();
 const AuthenticatedStackNavigator = createNativeStackNavigator<AuthenticatedStackParamList>();
 
@@ -61,37 +75,18 @@ export function AuthStack() {
 
 export function AuthenticatedStack() {
     return (
-        <AuthenticatedStackNavigator.Navigator screenOptions={{ headerShown: false }}>
+        <AuthenticatedStackNavigator.Navigator screenOptions={{ headerShown: false }} >
             <AuthenticatedStackNavigator.Screen name="MainTabs" component={DrawerNavigator} />
         </AuthenticatedStackNavigator.Navigator>
     );
 }
 
 export function Navigation() { 
-    const linking = {
-        prefixes: ["myapp://", "https://myapp.com"], // Adjust to your actual scheme/domain
-        config: {
-            screens: {
-            // For unauthenticated users
-                Signup: "signup",
-                Login: "login",
-                OTP: "otp",
-      
-                // For authenticated users
-                MainTabs: {
-                    screens: {
-                        Chat: "chat",
-                        Profile: "profile",
-                        Home: "home",
-                    },
-                },
-            },
-        },
-    };
+    
     const authCtx = useContext(AuthContext);
     const { theme } = useTheme(); 
     return (
-        <NavigationContainer ref={navigationRef} linking={linking} theme={theme === "dark" ? darkTheme : lightTheme}>
+        <NavigationContainer ref={navigationRef}  linking={linking} theme={theme === "dark" ? darkTheme : lightTheme}>
             {!authCtx.isAuthenticated &&<AuthStack />}
             {authCtx.isAuthenticated && <AuthenticatedStack/>}
         </NavigationContainer>

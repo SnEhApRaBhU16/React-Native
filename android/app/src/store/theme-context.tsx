@@ -7,13 +7,13 @@ type Theme = "light" | "dark";
 interface ThemeContextProps {
   theme: Theme;
   toggleTheme: () => void;
+
 }
 
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [theme, setTheme] = useState<Theme>("light");
-
     useEffect(() => {
         const loadTheme = async () => {
             const storedTheme = await AsyncStorage.getItem("theme");

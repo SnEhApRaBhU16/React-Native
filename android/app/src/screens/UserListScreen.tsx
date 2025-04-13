@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, FlatList, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, FlatList, Text, TouchableOpacity, StyleSheet, Button } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import {  db,auth } from "../config/firebaseConfig";
@@ -23,12 +23,10 @@ export default function UsersScreen() {
     const currentUser = auth.currentUser;
     const [loading, setLoading] = useState<boolean>(true);
 
-    console.log("Current User:", currentUser);
     useEffect(() => {
         if (!currentUser) {
             return;
         }
-    
     
         const q = query(
             collection(db, "users"),
@@ -80,7 +78,7 @@ export default function UsersScreen() {
         );
         
     };
-
+   
     return (
         <View style={styles.container}>
             <ThemedText style={styles.header}>{t("Users")}</ThemedText>
@@ -96,6 +94,7 @@ export default function UsersScreen() {
                     contentContainerStyle={{ paddingBottom: 20 }}
                 />
             )}
+
         </View>
     );
 }

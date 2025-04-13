@@ -16,9 +16,21 @@ import ThemedText from "../ui/ThemedText";
 import { AuthContext } from "../store/slices/auth-context";
 import { Text } from "react-native";
 import { useTranslation } from "react-i18next";
-
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+export type ProfileStackParamList = {
+    ProfileMain: undefined;
+    EditProfile: {
+      userData: {
+        name: string;
+        email: string;
+      };
+    };
+  };
 export default function ProfileScreen({ uri, width = 300 }: { uri: string; width: number }) {
     const [, setHeight] = useState(200);
+    const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
+
     const {t} = useTranslation();
     const [uploading, setUploading] = useState(false);
     const [imageUri, setImageUri] = useState<string | null>(null);
@@ -71,8 +83,10 @@ export default function ProfileScreen({ uri, width = 300 }: { uri: string; width
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <ThemedText  style={styles.title}>{t("Your Profile")}</ThemedText>
-
+            <View style={{display:"flex",flexDirection:"row",justifyContent:"space-between"}}>
+                <ThemedText  style={styles.title}>{t("Your Profile")}</ThemedText>
+                
+            </View>
             {imageUri && <Image source={{ uri: imageUri }} style={styles.imagePreview} />}
 
             {uploading && <ActivityIndicator size="large" color="#6200ee" style={{ marginVertical: 16 }} />}
@@ -90,6 +104,15 @@ export default function ProfileScreen({ uri, width = 300 }: { uri: string; width
                 <ThemedText style={styles.label}>{t("Phone Number:")}</ThemedText>
                 <ThemedText style={styles.value}>{userData.phonenumber}</ThemedText>
             </View>
+            <TouchableOpacity
+                style={[styles.button, { backgroundColor: "#6200ee" }]}
+                onPress={() => {
+                    navigation.navigate("EditProfile" as never);
+                }}
+            >
+                
+                <Text style={styles.buttonText}>{t("Edit Profile")}</Text>
+            </TouchableOpacity>
         </ScrollView>
     );
 }

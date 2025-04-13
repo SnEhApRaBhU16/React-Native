@@ -9,7 +9,9 @@ interface ContextTypes {
     displayName:string,
     email:string,
     setUserData:(displayName:string,email:string,photoUrl:string)=>void
-    photoUrl:string
+    photoUrl:string;
+    redirectionTab: string;   
+    setRedirectionTab: (tab: string) => void;
 }
 export const AuthContext = createContext<ContextTypes>({
     token:"",
@@ -19,7 +21,9 @@ export const AuthContext = createContext<ContextTypes>({
     email:"",
     setUserData:()=>{},
     authenticate: () => {},
-    logout: () => {}
+    logout: () => {},
+    redirectionTab: "",
+    setRedirectionTab: () => {}
 });
 
 function AuthContextProvider({children}:{children:ReactNode}) {
@@ -29,6 +33,8 @@ function AuthContextProvider({children}:{children:ReactNode}) {
     const [displayName, setDisplayName] = useState<string>("");
     const [photoUrl, setPhotoUrl] = useState<string>("");
     const [email,setEmail]= useState("");
+    const [redirectionTab, setRedirectionTab] = useState("");
+    
     function authenticate(token:string) {
         const userData = {
             token,
@@ -58,7 +64,9 @@ function AuthContextProvider({children}:{children:ReactNode}) {
         email:email,
         authenticate: authenticate,
         logout: logout,
-        setUserData:setUserData
+        setUserData:setUserData,
+        redirectionTab: redirectionTab,
+        setRedirectionTab: setRedirectionTab
     };
 
     return (

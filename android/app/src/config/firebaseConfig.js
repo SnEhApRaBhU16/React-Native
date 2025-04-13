@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {  initializeFirestore } from "firebase/firestore";
 import analytics from "@react-native-firebase/analytics";
 import crashlytics from "@react-native-firebase/crashlytics";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAN9G143Zg0FcekZjXmNYaLEVTaDfRmFxA",
@@ -24,6 +25,8 @@ const db = initializeFirestore(app, {
     experimentalForceLongPolling: true,
 
 });
+const storage = getStorage(app);  // Initialize Firebase Storage
+
 analytics().logAppOpen();
 crashlytics().log("App started.");
-export { app, auth,db};
+export { app, auth,db,storage};

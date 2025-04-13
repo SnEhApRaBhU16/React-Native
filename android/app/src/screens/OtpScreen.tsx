@@ -45,12 +45,36 @@ function OtpScreen() {
     }, [isResendDisabled]);
 
     const handleChange = (text: string, index: number) => {
-        if (text.length > 1) return;
-        const newOtp = [...otp];
-        newOtp[index] = text;
-        setOtp(newOtp);
+        console.log("textt",text);
+        if (text.length > 1) {
+            const chars = text.split("").slice(0, 4);
 
+            chars.forEach((char, i) => {
+                inputRefs[i]?.current?.setNativeProps({ text: char });
+
+            });
+
+            setOtp((prev) => {
+                const updated = [...prev];
+                chars.forEach((char, i) => {
+                    updated[i] = char;
+                });
+                return updated;
+            });
+
+            // Blur the last input
+            setTimeout(() => {
+                inputRefs.forEach(ref => ref.current?.blur());
+            }, 100);            
+            return;
+        }
+
+        const updatedOtp = [...otp];
+        updatedOtp[index] = text;
+        setOtp(updatedOtp);
+        // ✅ Always move to next input if text is entered
         if (text && index < 3) {
+            console.log("innn");
             inputRefs[index + 1]?.current?.focus();
         }
     };
@@ -92,6 +116,14 @@ function OtpScreen() {
         return <LoadingOverlay message="Logging in ..." />;
     }
 
+
+
+    const handleKeyPress = (key: string, index: number) => {
+        if (key === "Backspace" && otp[index] === "" && index > 0) {
+            inputRefs[index - 1]?.current?.focus();
+        }
+    };
+
     return (
         <View style={styles.container}>
             <Image source={require("../assets/images/6325251.jpg")} style={styles.image}/>
@@ -104,9 +136,16 @@ function OtpScreen() {
                         ref={inputRefs[index]}
                         style={styles.otpBox}
                         keyboardType="numeric"
-                        maxLength={1}
+                        onFocus={() => {
+                            const updatedOtp = [...otp];
+                            updatedOtp[index] = "";
+                            setOtp(updatedOtp);
+                        }}
+                        contextMenuHidden={false}
                         value={value}
                         onChangeText={(text) => handleChange(text, index)}
+                        onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
+
                     />
                 ))}
             </View>
