@@ -7,6 +7,7 @@ import {
     Image,
     ScrollView,
 } from "react-native";
+import FastImage from "react-native-fast-image";
 import { launchImageLibrary } from "react-native-image-picker";
 import { uploadToS3 } from "../utils/s3Upload";
 import { getAuth } from "firebase/auth";
@@ -87,7 +88,10 @@ export default function ProfileScreen({ uri, width = 300 }: { uri: string; width
                 <ThemedText  style={styles.title}>{t("Your Profile")}</ThemedText>
                 
             </View>
-            {imageUri && <Image source={{ uri: imageUri }} style={styles.imagePreview} />}
+            {imageUri && <FastImage 
+                source={{ uri: imageUri }} 
+                resizeMode={FastImage.resizeMode.cover}
+                style={styles.imagePreview} />}
 
             {uploading && <ActivityIndicator size="large" color="#6200ee" style={{ marginVertical: 16 }} />}
 

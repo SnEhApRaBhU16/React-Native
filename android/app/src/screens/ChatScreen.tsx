@@ -4,13 +4,12 @@ import {
     View,
     TextInput,
     FlatList,
-    Button,
     Text,
     StyleSheet,
     KeyboardAvoidingView,
     Platform,
-    Image,
     ActivityIndicator,
+    TouchableOpacity,
 } from "react-native";
 
 import { RouteProp, useRoute } from "@react-navigation/native";
@@ -23,6 +22,7 @@ import {
     query,
     serverTimestamp,
 } from "firebase/firestore";
+import FastImage from "react-native-fast-image";
 import { useTheme } from "../store/theme-context";
 import { useTranslation } from "react-i18next";
 import { CameraPicker } from "../components/CameraPicker";
@@ -162,9 +162,11 @@ export default function ChatScreen() {
                         <ActivityIndicator size="small" color="#fff" />
                     </View>
                 ) : item.imageUrl ? (
-                    <Image
+                    <FastImage
                         source={{ uri: item.imageUrl }}
                         style={{ width: 200, height: 200, marginTop: 5 }}
+                        resizeMode={FastImage.resizeMode.cover}
+
                     />
                 ) : null}
 
@@ -204,11 +206,10 @@ export default function ChatScreen() {
                 isUploading: true
             }]));
         }else{
-            setMessages((prev)=>prev.filter((msg)=>msg.id===""))
+            setMessages((prev)=>prev.filter((msg)=>msg.id===""));
         }
         
     },[uploading]);
-    console.log("messages",messages);
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -227,6 +228,11 @@ export default function ChatScreen() {
                 />
 
                 <View style={[styles.inputContainer, { backgroundColor: inputContainerBg }]}>
+                    <View style={styles.iconButtons}>
+                        <CameraPicker onUploadSuccess={handleImageUpload} setUploading={setUploading} />
+                        <GalleryPicker onUploadSuccess={handleImageUpload} setUploading={setUploading} />
+                    </View>
+
                     <TextInput
                         style={styles.input}
                         value={input}
@@ -235,16 +241,12 @@ export default function ChatScreen() {
                         placeholder={t("Type a message")}
                         onSubmitEditing={sendMessage}
                         returnKeyType="send"
-                        keyboardType="visible-password" 
+                        keyboardType="visible-password"
                     />
-                    <View style={{ flexDirection: "row" }}>
-                        <CameraPicker onUploadSuccess={handleImageUpload} setUploading={setUploading} />
-                        <GalleryPicker onUploadSuccess={handleImageUpload} setUploading={setUploading} />
-                    </View>
 
-                    <View style={styles.button}>
-                        <Button title={t("SEND")} onPress={sendMessage} />
-                    </View>
+                    <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+                        <Text style={styles.sendText}>{t("SEND")}</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </KeyboardAvoidingView>
@@ -261,6 +263,13 @@ const styles = StyleSheet.create({
     button: {
         flex: 2,
     },
+    iconButtons: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 5,
+        marginRight: 5,
+    },
+    
     sent: {
         backgroundColor: "#007AFF",
         alignSelf: "flex-end",
@@ -283,6 +292,21 @@ const styles = StyleSheet.create({
         backgroundColor: "#eee",
         borderRadius: 10,
         marginRight: 5,
+        marginHorizontal: 5,
+        paddingHorizontal: 15,
+
+    },
+    sendButton: {
+        backgroundColor: "#007AFF",
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 20,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    sendText: {
+        color: "#fff",
+        fontWeight: "600",
     },
     readMore: {
         marginTop: 5,
