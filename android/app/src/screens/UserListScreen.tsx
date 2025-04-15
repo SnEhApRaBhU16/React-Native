@@ -1,89 +1,48 @@
-import React, { useEffect, useState } from "react";
-import { View, FlatList, Text, TouchableOpacity, StyleSheet, Button } from "react-native";
+import React from "react";
+import { View, FlatList, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
-import {  db,auth } from "../config/firebaseConfig";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ChatStackParamList } from "../navigation/ChatStackNavigator";
 import { useTranslation } from "react-i18next";
 import ThemedText from "../ui/ThemedText";
 import LoadingOverlay from "../ui/LoadingOverlay";
-
-interface User {
-  uid: string;
-  firstName: string;
-  lastName:string;
-  email: string;
-}
+import { useUsersViewModel } from "../viewmodels/UserListViewModal";
+import { User } from "../model/UserList";
 
 export default function UsersScreen() {
     const { t } = useTranslation();
-    const [users, setUsers] = useState<User[]>([]);
     const navigation = useNavigation<NativeStackNavigationProp<ChatStackParamList>>();
-    const currentUser = auth.currentUser;
-    const [loading, setLoading] = useState<boolean>(true);
+    const { users, loading, getChatId, currentUser } = useUsersViewModel();
 
-    useEffect(() => {
-        if (!currentUser) {
-            return;
-        }
-    
-        const q = query(
-            collection(db, "users"),
-            where("uid", "!=", currentUser.uid),
-            orderBy("uid") // Required with '!='
-        );
-    
-        const unsubscribe = onSnapshot(
-            q,
-            (snapshot) => {    
-                const usersList: User[] = snapshot.docs.map((doc) => doc.data() as User);
-                setUsers(usersList);
-                setLoading(false);
-            },
-            (error) => {
-                console.error(" Error in Firestore snapshot listener:", error);
-                setLoading(false);
-            }
-        );
-    
-        return unsubscribe;
-    }, [currentUser]);
-    
     const startChat = (selectedUser: User) => {
         if (!currentUser) return;
-
-        const chatId =
-      currentUser.uid > selectedUser.uid
-          ? currentUser.uid + selectedUser.uid
-          : selectedUser.uid + currentUser.uid;
-
+        const chatId = getChatId(selectedUser);
         navigation.navigate("ChatScreen", { selectedUser, chatId });
     };
 
     const renderItem = ({ item }: { item: User }) => {
-        const name = item.firstName+" "+ item.lastName;
+        const name = `${item.firstName} ${item.lastName}`;
         const initials = name
             ? name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
             : item.email[0].toUpperCase();
-        return(
+
+        return (
             <TouchableOpacity style={styles.card} onPress={() => startChat(item)}>
                 <View style={styles.avatar}>
                     <Text style={styles.avatarText}>{initials}</Text>
                 </View>
                 <View>
-                    <Text style={styles.name}>{item.firstName+" "+item.lastName || item.email}</Text>
+                    <Text style={styles.name}>{name || item.email}</Text>
                 </View>
             </TouchableOpacity>
         );
-        
     };
-   
+
     return (
         <View style={styles.container}>
             <ThemedText style={styles.header}>{t("Users")}</ThemedText>
             {loading ? (
-                <LoadingOverlay message="Loading users..."/>
+                <LoadingOverlay message="Loading users..." />
             ) : users.length === 0 ? (
                 <Text style={styles.emptyText}>No users available to chat.</Text>
             ) : (
@@ -94,7 +53,6 @@ export default function UsersScreen() {
                     contentContainerStyle={{ paddingBottom: 20 }}
                 />
             )}
-
         </View>
     );
 }
@@ -141,10 +99,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         color: "#333",
-    },
-    email: {
-        fontSize: 14,
-        color: "#666",
     },
     emptyText: {
         marginTop: 40,

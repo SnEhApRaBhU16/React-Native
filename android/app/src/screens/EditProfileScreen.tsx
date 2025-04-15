@@ -4,11 +4,12 @@ import { useTranslation } from "react-i18next";
 import { getAuth } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
+import { useTheme } from "../store/theme-context";
 
 
 
 export default function EditProfileScreen() {
-  
+    const {theme} = useTheme();
     const {t} = useTranslation();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -34,7 +35,7 @@ export default function EditProfileScreen() {
             <View style={styles.infoBox}>
                 <Text style={styles.label}>{t("Name")}:</Text>
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input,{color: theme === "dark" ? "white" : "black"}]}
                     value={name}
                     onChangeText={setName}
                     placeholder={t("Enter your name")}
@@ -42,7 +43,7 @@ export default function EditProfileScreen() {
 
                 <Text style={styles.label}>{t("Email")}:</Text>
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input,{color: theme === "dark" ? "white" : "black",}]}
                     value={email}
                     onChangeText={setEmail}
                     placeholder={t("Enter your email")}

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import {
     View,
     TextInput,
@@ -8,154 +7,48 @@ import {
     StyleSheet,
     KeyboardAvoidingView,
     Platform,
-    ActivityIndicator,
     TouchableOpacity,
+    ActivityIndicator,
 } from "react-native";
-
-import { RouteProp, useRoute } from "@react-navigation/native";
-import { auth, db } from "../config/firebaseConfig";
-import {
-    collection,
-    addDoc,
-    onSnapshot,
-    orderBy,
-    query,
-    serverTimestamp,
-} from "firebase/firestore";
 import FastImage from "react-native-fast-image";
+import { useRoute, RouteProp } from "@react-navigation/native";
+import { useChatViewModel } from "../viewmodels/ChatViewModel";
 import { useTheme } from "../store/theme-context";
 import { useTranslation } from "react-i18next";
 import { CameraPicker } from "../components/CameraPicker";
 import { GalleryPicker } from "../components/GalleryPicker";
-
-interface ChatMessage {
-  id: string;
-  text: string;
-  senderId: string;
-  receiverId: string;
-  timestamp?: string;
-  imageUrl?: string;
-  isUploading?: boolean;
-}
-
-interface RouteParams {
-  selectedUser: {
-    uid: string;
-    name: string;
-  };
-  chatId: string;
-}
-
+import { RouteParams } from "../model/ChatTypes";
+import { ChatMessage } from "../model/ChatTypes";
+import { auth } from "../config/firebaseConfig";
 export default function ChatScreen() {
     const route = useRoute<RouteProp<Record<string, RouteParams>, string>>();
-    const { selectedUser, chatId } = route.params;
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [input, setInput] = useState("");
-    const [expandedMessages, setExpandedMessages] = useState<{ [key: string]: boolean }>({});
-    const [imageUrl, setImageUrl] = useState<string | null>(null);
-    const currentUser = auth.currentUser;
-    const flatListRef = useRef<FlatList<ChatMessage>>(null);
+    const { chatId, selectedUser } = route.params;
+    const {
+        messages,
+        input,
+        setInput,
+        sendMessage,
+        expandedMessages,
+        setExpandedMessages,
+        handleImageUpload,
+        flatListRef,
+        setUploading,
+    } = useChatViewModel(chatId, selectedUser.uid);
+
     const { theme } = useTheme();
     const { t } = useTranslation();
-    const [uploading, setUploading] = useState(false);
-
-    useEffect(() => {
-        const messagesRef = collection(db, "chats", chatId, "messages");
-        const q = query(messagesRef, orderBy("timestamp", "asc"));
-
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const msgs: ChatMessage[] = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as ChatMessage[];
-
-            setMessages(msgs);
-        });
-
-        return unsubscribe;
-    }, [chatId]);
-
-    const addUploadingMessage = () => {
-        const tempId = `uploading-${Date.now()}`;
-        const uploadingMsg: ChatMessage = {
-            id: tempId,
-            text: "",
-            senderId: currentUser?.uid || "",
-            receiverId: selectedUser.uid,
-            isUploading: true,
-        };
-        setMessages((prev) => [...prev, uploadingMsg]);
-        return tempId;
-    };
-      
-    const replaceUploadingMessage = (tempId: string, imageUrl: string) => {
-        setMessages((prev) =>
-            prev.map((msg) =>
-                msg.id === tempId
-                    ? {
-                        ...msg,
-                        imageUrl,
-                        isUploading: false,
-                        timestamp: new Date().toISOString(),
-                    }
-                    : msg
-            )
-        );
-
-    };
-
-    const sendMessage = async () => {
-        if (!input.trim() || !currentUser) return;
-
-        const msgRef = collection(db, "chats", chatId, "messages");
-
-        const messageData: any = {
-            text: input,
-            senderId: currentUser.uid,
-            receiverId: selectedUser.uid,
-            timestamp: serverTimestamp(),
-        };
-
-        if (imageUrl) {
-            messageData.imageUrl = imageUrl;
-            setImageUrl(null); 
-        }
-
-        await addDoc(msgRef, messageData);
-        setInput(""); 
-    };
-
-    const handleImageUpload = async (url: string) => {
-        const tempId = addUploadingMessage();
-
-        const msgRef = collection(db, "chats", chatId, "messages");
-        try {
-            await addDoc(msgRef, {
-                senderId: currentUser?.uid,
-                receiverId: selectedUser.uid,
-                imageUrl: url,
-                timestamp: serverTimestamp(),
-                text: "", // optional if image-only
-            });
-    
-            replaceUploadingMessage(tempId, url); // Replace uploading message with the actual URL
-        } catch (error) {
-            console.error("Error uploading image:", error);
-        }
-    };
+    const inputContainerBg = theme === "dark" ? "#111" : "#fff";
 
     const renderItem = ({ item }: { item: ChatMessage }) => {
-        const isSender = item.senderId === currentUser?.uid;
+        const isSender = item.senderId === auth.currentUser?.uid;
         const isExpanded = expandedMessages[item.id] || false;
         const shouldTruncate = item.text.length > 100 && !isExpanded;
 
-        const displayText = shouldTruncate
-            ? item.text.substring(0, 100) + "..."
-            : item.text;
-
         return (
             <View style={[styles.message, isSender ? styles.sent : styles.received]}>
-                <Text style={{ color: "#fff" }}>{displayText}</Text>
+                <Text style={{ color: "#fff" }}>
+                    {shouldTruncate ? item.text.substring(0, 100) + "..." : item.text}
+                </Text>
 
                 {item.isUploading ||item.id===""? (
                     <View style={{ width: 200, height: 200, alignItems: "center", justifyContent: "center" }}>
@@ -166,7 +59,6 @@ export default function ChatScreen() {
                         source={{ uri: item.imageUrl }}
                         style={{ width: 200, height: 200, marginTop: 5 }}
                         resizeMode={FastImage.resizeMode.cover}
-
                     />
                 ) : null}
 
@@ -187,29 +79,6 @@ export default function ChatScreen() {
         );
     };
 
-    const inputContainerBg = theme === "dark" ? "#111" : "#fff"; 
-
-    // Scroll to the bottom when messages are updated
-    useEffect(() => {
-        if (flatListRef.current) {
-            flatListRef.current.scrollToEnd({ animated: true });
-        }
-    }, [messages]);
-    useEffect(()=>{
-        if(uploading){
-            setMessages((prev)=>([...prev,{
-                id: "",
-                text: "",
-                senderId: currentUser?.uid??"",
-                receiverId: "",
-                imageUrl: "",
-                isUploading: true
-            }]));
-        }else{
-            setMessages((prev)=>prev.filter((msg)=>msg.id===""));
-        }
-        
-    },[uploading]);
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -241,7 +110,6 @@ export default function ChatScreen() {
                         placeholder={t("Type a message")}
                         onSubmitEditing={sendMessage}
                         returnKeyType="send"
-                        keyboardType="visible-password"
                     />
 
                     <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
@@ -260,16 +128,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         maxWidth: "75%",
     },
-    button: {
-        flex: 2,
-    },
-    iconButtons: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 5,
-        marginRight: 5,
-    },
-    
     sent: {
         backgroundColor: "#007AFF",
         alignSelf: "flex-end",
@@ -294,7 +152,12 @@ const styles = StyleSheet.create({
         marginRight: 5,
         marginHorizontal: 5,
         paddingHorizontal: 15,
-
+    },
+    iconButtons: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 5,
+        marginRight: 5,
     },
     sendButton: {
         backgroundColor: "#007AFF",
